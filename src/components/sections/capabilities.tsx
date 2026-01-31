@@ -1,6 +1,14 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { 
+  Zap, 
+  ShieldCheck, 
+  Cpu, 
+  Users, 
+  Database, 
+  Container 
+} from "lucide-react";
 
 export function Capabilities() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -19,27 +27,33 @@ export function Capabilities() {
   const items = [
     {
       title: "CROSS-PLATFORM RELAY",
-      desc: "Ubiquitous presence. Move between Signal, Telegram, and Discord without losing state. Your AI follows the conversation wherever you are."
+      desc: "Ubiquitous presence. Move between Signal, Telegram, and Discord without losing state. Your AI follows the conversation wherever you are.",
+      icon: Zap
     },
     {
       title: "LOCAL-FIRST EXECUTION",
-      desc: "Runs on your hardware. Full filesystem access, native tool execution, and local vector memory ensure absolute privacy and zero latency."
+      desc: "Runs on your hardware. Full filesystem access, native tool execution, and local vector memory ensure absolute privacy and zero latency.",
+      icon: ShieldCheck
     },
     {
       title: "MULTI-MODEL ORCHESTRATION",
-      desc: "Seamless switching between Gemini, Claude, and specialized local models. Optimized for reasoning, speed, or cost depending on the task."
+      desc: "Seamless switching between Gemini, Claude, and specialized local models. Optimized for reasoning, speed, or cost depending on the task.",
+      icon: Cpu
     },
     {
       title: "AUTONOMOUS SUB-AGENTS",
-      desc: "Delegation without babysitting. Scorpion can spawn isolated workers for long-running research, deployments, or complex automation."
+      desc: "Delegation without babysitting. Scorpion can spawn isolated workers for long-running research, deployments, or complex automation.",
+      icon: Users
     },
     {
       title: "DURABLE MEMORY STORE",
-      desc: "Local SQLite-based vector store for long-term project memory. Recalls past decisions, technical hurdles, and human preferences instantly."
+      desc: "Local SQLite-based vector store for long-term project memory. Recalls past decisions, technical hurdles, and human preferences instantly.",
+      icon: Database
     },
     {
       title: "DOCKERIZED ISOLATION",
-      desc: "Every execution is sandboxed. Secure environment management for running untrusted code or complex multi-container systems."
+      desc: "Every execution is sandboxed. Secure environment management for running untrusted code or complex multi-container systems.",
+      icon: Container
     }
   ];
 
@@ -54,7 +68,6 @@ export function Capabilities() {
         onMouseLeave={() => setOpacity(0)}
         className="grid md:grid-cols-3 gap-px bg-white/10 relative overflow-hidden border border-white/10"
       >
-        {/* The shared Flashlight layer for borders */}
         <div
           className="pointer-events-none absolute -inset-px transition-opacity duration-300 z-0"
           style={{
@@ -65,26 +78,18 @@ export function Capabilities() {
 
         {items.map((item, i) => (
           <div key={i} className="relative p-10 bg-black group/card z-10">
-            {/* The Flashlight layer for card surface */}
-            <div
-              className="pointer-events-none absolute -inset-px opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 z-0"
-              style={{
-                background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255,255,255,0.06), transparent 40%)`,
-                // Trick to align gradient with container
-                // We need to offset the gradient by the card's position relative to container
-                // But since we are using 'calc' and 'var', it's better to just use a child div that is large.
-              }}
-            />
-            
-            {/* Standard "flashlight" that overflows is best done by letting the card's own gradient 
-                offset itself by the card's position. We can use a simple hook for this. */}
             <SpotlightBackground x={mousePosition.x} y={mousePosition.y} />
 
-            <div className="relative space-y-4 z-10">
-              <h3 className="text-xl font-bold font-mono italic text-white/90">{item.title}</h3>
-              <p className="text-white/50 leading-relaxed text-sm group-hover/card:text-white/70 transition-colors">
-                {item.desc}
-              </p>
+            <div className="relative space-y-6 z-10">
+              <div className="w-12 h-12 flex items-center justify-center border border-white/10 bg-white/5 rounded-sm group-hover/card:border-white/30 transition-colors">
+                <item.icon className="w-6 h-6 text-white/70 group-hover/card:text-white" strokeWidth={1.5} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold font-mono italic text-white/90">{item.title}</h3>
+                <p className="text-white/50 leading-relaxed text-sm group-hover/card:text-white/70 transition-colors">
+                  {item.desc}
+                </p>
+              </div>
             </div>
           </div>
         ))}
