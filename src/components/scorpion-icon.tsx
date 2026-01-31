@@ -4,31 +4,56 @@ export function ScorpionIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 100 100"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      fill="currentColor"
       className={className}
+      xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Precision Scorpion Tail */}
-      <path d="M50 85 C 50 85, 50 65, 50 60 C 50 50, 70 45, 75 35 C 80 25, 70 15, 60 15 C 55 15, 50 20, 50 20" />
-      <path d="M50 20 L 45 10 L 55 10 Z" fill="currentColor" stroke="none" />
+      {/* Outer Circle (Broken for Claws) */}
+      <path
+        d="M32 88 A 42 42 0 1 1 68 88"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
       
-      {/* Technical Body Segments */}
-      <rect x="42" y="60" width="16" height="8" rx="2" />
-      <rect x="40" y="50" width="20" height="8" rx="2" />
-      <rect x="38" y="40" width="24" height="8" rx="2" />
-      
-      {/* High-Precision Claws */}
-      <path d="M38 44 C 30 44, 20 40, 20 30 L 20 20 M 20 25 L 15 25 M 20 20 L 25 20" />
-      <path d="M62 44 C 70 44, 80 40, 80 30 L 80 20 M 80 25 L 85 25 M 80 20 L 75 20" />
-      
-      {/* Multi-jointed Legs */}
-      <path d="M38 54 L 25 54 L 20 60" />
-      <path d="M38 64 L 25 64 L 20 70" />
-      <path d="M62 54 L 75 54 L 80 60" />
-      <path d="M62 64 L 75 64 L 80 70" />
+      {/* Scorpion Silhouette */}
+      <path d="
+        M50 78
+        C 42 78, 38 68, 42 58
+        C 42 53, 45 48, 50 48
+        C 55 48, 58 53, 58 58
+        C 62 68, 58 78, 50 78 Z
+        
+        M50 48
+        C 50 20, 70 15, 75 35
+        C 78 45, 60 55, 55 45
+        C 52 40, 50 35, 50 35
+        L 48 32
+        C 48 32, 50 48, 50 48 Z
+        
+        M52 38
+        L 42 28
+        L 55 22
+        Z
+        
+        M42 68
+        C 30 63, 10 70, 10 85
+        C 10 100, 30 105, 45 95
+        C 48 93, 45 80, 45 80
+        L 42 68 Z
+        
+        M58 68
+        C 70 63, 90 70, 90 85
+        C 90 100, 70 105, 55 95
+        C 52 93, 55 80, 55 80
+        L 58 68 Z
+        
+        M40 58 Q 25 58 20 48
+        M40 63 Q 25 68 20 78
+        M60 58 Q 75 58 80 48
+        M60 63 Q 75 68 80 78
+      " />
     </svg>
   );
 }
