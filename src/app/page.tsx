@@ -10,7 +10,7 @@ export default function Home() {
       <nav className="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-black/50 backdrop-blur-md border-b border-white/10">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center text-black">
-            <ScorpionIcon className="w-6 h-6" />
+            <ScorpionIcon className="w-5 h-5" />
           </div>
           <span className="font-mono tracking-widest text-lg font-bold uppercase">Scorpion</span>
         </div>

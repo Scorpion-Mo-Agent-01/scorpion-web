@@ -20,7 +20,7 @@ export function Hero() {
       </div>
       <div className="relative group flex-1 flex justify-center md:justify-end">
         <div className="absolute inset-0 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors duration-1000" />
-        <ScorpionIcon className="w-64 h-64 md:w-[30rem] md:h-[30rem] relative z-10 text-white animate-in fade-in zoom-in duration-1000 select-none pointer-events-none drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] group-hover:drop-shadow-[0_0_50px_rgba(255,255,255,0.4)] transition-all duration-500" />
+        <ScorpionIcon className="w-64 h-64 md:w-[28rem] md:h-[28rem] relative z-10 text-white animate-in fade-in zoom-in duration-1000 select-none pointer-events-none drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] group-hover:drop-shadow-[0_0_50px_rgba(255,255,255,0.4)] transition-all duration-500" />
       </div>
     </section>
   );
