@@ -1,6 +1,7 @@
 import { Hero } from "@/components/sections/hero";
 import { About } from "@/components/sections/about";
 import { Capabilities } from "@/components/sections/capabilities";
+import { ScorpionIcon } from "@/components/scorpion-icon";
 
 export default function Home() {
   return (
@@ -8,8 +9,8 @@ export default function Home() {
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-black/50 backdrop-blur-md border-b border-white/10">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center text-black font-bold text-xl">
-            🦂
+          <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center text-black">
+            <ScorpionIcon className="w-6 h-6" />
           </div>
           <span className="font-mono tracking-widest text-lg font-bold uppercase">Scorpion</span>
         </div>
