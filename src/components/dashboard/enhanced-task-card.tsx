@@ -12,6 +12,9 @@ interface EnhancedTaskCardProps {
   status: string;
   tags?: string[];
   securityFlagged?: boolean;
+  qaApproved?: boolean;
+  inputTokens?: number;
+  outputTokens?: number;
   onStatusChange?: (id: string, newStatus: string) => void;
   onClick?: () => void;
 }
@@ -20,7 +23,7 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
   inbox: ["assigned"],
   assigned: ["in progress", "inbox"],
   "in progress": ["review", "assigned"],
-  review: ["done", "in progress"],
+  review: ["in progress"], // QA will provide Done
   done: ["review"],
 };
 
@@ -41,6 +44,9 @@ export function EnhancedTaskCard({
   status,
   tags = [],
   securityFlagged = false,
+  qaApproved = false,
+  inputTokens,
+  outputTokens,
   onStatusChange,
   onClick,
 }: EnhancedTaskCardProps) {
@@ -60,7 +66,11 @@ export function EnhancedTaskCard({
     zIndex: isDragging ? 1000 : 1,
   };
 
-  const availableTransitions = STATUS_TRANSITIONS[status] || [];
+  let availableTransitions = STATUS_TRANSITIONS[status] || [];
+  // Only QA (john) can move to done
+  if (status === "review" && assignedAgent === "john") {
+    availableTransitions = ["done", ...availableTransitions];
+  }
   const agentInfo = assignedAgent ? AGENT_MAP[assignedAgent] : null;
 
   return (
@@ -110,6 +120,9 @@ export function EnhancedTaskCard({
               {tag}
             </span>
           ))}
+          {tags.length > 3 && (
+            <span className="px-2 py-0.5 bg-slate-700 text-zinc-400 rounded text-xs font-mono lowercase">+{tags.length - 3}</span>
+          )}
         </div>
       )}
 
@@ -119,6 +132,9 @@ export function EnhancedTaskCard({
             {agentInfo.emoji}
           </div>
           <p className="text-xs text-zinc-400 capitalize">{assignedAgent?.replace('-', ' ')}</p>
+          {status === "done" && qaApproved && (
+            <span className="text-[10px] uppercase text-emerald-400 font-mono">QA approved</span>
+          )}
         </div>
       )}
 
@@ -138,6 +154,13 @@ export function EnhancedTaskCard({
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {(inputTokens !== undefined || outputTokens !== undefined) && (
+        <div className="pt-2 border-t border-slate-700 mt-2 text-[11px] text-zinc-400 font-mono flex gap-3">
+          {inputTokens !== undefined && <span>In: {inputTokens}</span>}
+          {outputTokens !== undefined && <span>Out: {outputTokens}</span>}
         </div>
       )}
     </motion.div>

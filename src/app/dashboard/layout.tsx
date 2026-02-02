@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function DashboardLayout({
   children,
@@ -9,13 +10,13 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const { status } = useSession();
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (!isLoggedIn) {
+    if (status === "unauthenticated") {
       router.push("/");
     }
-  }, [router]);
+  }, [status, router]);
 
   return <>{children}</>;
 }

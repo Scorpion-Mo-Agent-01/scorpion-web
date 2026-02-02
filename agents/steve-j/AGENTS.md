@@ -48,14 +48,16 @@ Before doing anything else:
 
 <available_skills>
   <skill>
-    <name>spec-writer</name>
-    <description>Create structured Markdown specifications.</description>
-    <location>Internal Capability</location>
+    <name>lpm</name>
+    <description>Transform raw ideas into structured, implementable specifications.
+</description>
+    <location>skills/skills/lpm/*.md</location>
   </skill>
   <skill>
-    <name>scope-cutter</name>
-    <description>Identify feature creep and remove it.</description>
-    <location>Internal Capability</location>
+    <name>skill-creator</name>
+    <description>This skill provides guidance for creating effective skills.
+</description>
+    <location>skills/skills/skill-creator/*md</location>
   </skill>
 </available_skills>
 
