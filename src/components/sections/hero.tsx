@@ -13,10 +13,18 @@ export function Hero() {
           IS IN THE<br />
           <span className="text-white/20">MACHINE.</span>
         </h1>
-        <p className="text-xl md:text-2xl font-mono text-white/60 max-w-2xl">
+        <p className="text-xl md:text-2xl font-mono text-white/60 max-w-2xl mb-12">
           An open agent platform running on your infrastructure. Your assistant. Your rules. 
           Integrated into the chat apps you already use.
         </p>
+        <div className="flex gap-4">
+          <a href="#control" className="px-8 py-4 bg-white text-black font-mono text-sm font-bold uppercase hover:bg-white/90 transition-all">
+            Login to Console
+          </a>
+          <a href="#about" className="px-8 py-4 border border-white/20 text-white font-mono text-sm font-bold uppercase hover:bg-white/5 transition-all">
+            Read Docs
+          </a>
+        </div>
       </div>
       <div className="relative group flex-1 flex justify-center md:justify-end">
         <div className="absolute inset-0 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors duration-1000" />

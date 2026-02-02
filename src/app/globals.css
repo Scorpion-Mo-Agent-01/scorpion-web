@@ -8,25 +8,26 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  --color-background: #000000;
-  --color-foreground: #ffffff;
-  --color-card: #000000;
-  --color-card-foreground: #ffffff;
-  --color-popover: #000000;
-  --color-popover-foreground: #ffffff;
-  --color-primary: #ffffff;
-  --color-primary-foreground: #000000;
-  --color-secondary: #27272a;
-  --color-secondary-foreground: #ffffff;
-  --color-muted: #27272a;
-  --color-muted-foreground: #a1a1aa;
-  --color-accent: #27272a;
-  --color-accent-foreground: #ffffff;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #ffffff;
-  --color-border: #27272a;
-  --color-input: #27272a;
-  --color-ring: #d4d4d8;
+  /* Shadcn UI Deep Dark Mode (Slate-950/Zinc) */
+  --color-background: #020617; /* Slate-950 */
+  --color-foreground: #fafafa; /* Zinc-50 */
+  --color-card: #020617; /* Slate-950 */
+  --color-card-foreground: #fafafa; /* Zinc-50 */
+  --color-popover: #020617; /* Slate-950 */
+  --color-popover-foreground: #fafafa; /* Zinc-50 */
+  --color-primary: #fafafa; /* Zinc-50 */
+  --color-primary-foreground: #020617; /* Slate-950 */
+  --color-secondary: #1e293b; /* Slate-800 */
+  --color-secondary-foreground: #fafafa; /* Zinc-50 */
+  --color-muted: #1e293b; /* Slate-800 */
+  --color-muted-foreground: #a1a1aa; /* Zinc-400 */
+  --color-accent: #1e293b; /* Slate-800 */
+  --color-accent-foreground: #fafafa; /* Zinc-50 */
+  --color-destructive: #ef4444; /* Red-500 */
+  --color-destructive-foreground: #ffffff; /* White */
+  --color-border: #1e293b; /* Slate-800 */
+  --color-input: #1e293b; /* Slate-800 */
+  --color-ring: #3f3f46; /* Zinc-700 for better contrast */
 }
 
 @layer base {
@@ -36,4 +37,24 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #0f172a;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }

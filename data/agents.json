@@ -1,0 +1,62 @@
+[
+  {
+    "id": "scorpion",
+    "name": "Scorpion",
+    "emoji": "🦂",
+    "level": "Lead",
+    "role": "The Sentinel (Orchestrator & Security)",
+    "status": "WORKING",
+    "currentTask": "Multi-agent orchestration, security filtering, and task routing",
+    "skills": ["skill-creator", "github", "message", "memory_search"]
+  },
+  {
+    "id": "steve-j",
+    "name": "Steve J.",
+    "emoji": "📋",
+    "level": "Specialist",
+    "role": "The PM (Product Manager)",
+    "status": "IDLE",
+    "currentTask": null,
+    "skills": ["notion", "web_search", "gemini"]
+  },
+  {
+    "id": "walter",
+    "name": "Walter",
+    "emoji": "🏗️",
+    "level": "Specialist",
+    "role": "The Architect (System Designer)",
+    "status": "IDLE",
+    "currentTask": null,
+    "skills": ["software-architecture", "architecture-diagrams"]
+  },
+  {
+    "id": "linus",
+    "name": "Linus",
+    "emoji": "⚙️",
+    "level": "Specialist",
+    "role": "The Engineer (Implementation & Code)",
+    "status": "WORKING",
+    "currentTask": "Building enhanced dashboard components",
+    "skills": ["exec", "github", "native-data-fetching", "expo-api-routes"]
+  },
+  {
+    "id": "john",
+    "name": "John",
+    "emoji": "🔍",
+    "level": "Specialist",
+    "role": "The QA (Quality Assurance)",
+    "status": "IDLE",
+    "currentTask": null,
+    "skills": ["exec", "sessions_spawn"]
+  },
+  {
+    "id": "sly",
+    "name": "Sly",
+    "emoji": "🎨",
+    "level": "Specialist",
+    "role": "The UI (Frontend Developer)",
+    "status": "WORKING",
+    "currentTask": "Designing UI components with Shadcn",
+    "skills": ["building-native-ui", "expo-dev-client", "browser"]
+  }
+]
