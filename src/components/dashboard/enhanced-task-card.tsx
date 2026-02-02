@@ -1,5 +1,7 @@
 "use client";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { motion } from "framer-motion";
 
 interface EnhancedTaskCardProps {
@@ -42,25 +44,41 @@ export function EnhancedTaskCard({
   onStatusChange,
   onClick,
 }: EnhancedTaskCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1000 : 1,
+  };
+
   const availableTransitions = STATUS_TRANSITIONS[status] || [];
   const agentInfo = assignedAgent ? AGENT_MAP[assignedAgent] : null;
 
   return (
     <motion.div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
+      initial={false}
       whileHover={{ translateY: -1 }}
       onClick={onClick}
       className={`
-        bg-slate-800 rounded-md p-4 mb-3 cursor-pointer
+        bg-slate-800 rounded-md p-4 mb-3 cursor-grab active:cursor-grabbing
         border transition-all
-        ${
-          securityFlagged
-            ? "border-red-500"
-            : "border-slate-700 hover:border-slate-600"
+        ${securityFlagged
+          ? "border-red-500"
+          : "border-slate-700 hover:border-slate-600"
         }
         relative
       `}
