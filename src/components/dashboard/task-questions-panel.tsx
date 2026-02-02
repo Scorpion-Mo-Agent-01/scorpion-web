@@ -59,7 +59,7 @@ export function TaskQuestionsPanel({ taskId }: { taskId: string }) {
       const res = await fetch("/api/questions", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, answer: text.trim(), status: "answered" }),
+        body: JSON.stringify({ id, answer: text.trim(), status: "answered", task_id: taskId }),
       });
       if (!res.ok) throw new Error("Failed to submit answer");
       setAnswerText((prev) => ({ ...prev, [id]: "" }));

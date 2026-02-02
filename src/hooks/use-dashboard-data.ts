@@ -12,6 +12,7 @@ export interface Task {
     qaApproved?: boolean;
     inputTokens?: number;
     outputTokens?: number;
+    project?: string;
     // Compact summary for handoff context
     summary?: string;
 }
@@ -25,6 +26,8 @@ export interface Agent {
     status: "WORKING" | "IDLE" | "BLOCKED";
     currentTask: string | null;
     skills: string[];
+    system_prompt?: string | null;
+    memory_cloud?: string | null;
 }
 
 export type TaskInput = Pick<Task, "title" | "description" | "assignedAgent" | "tags"> & { project?: string };
@@ -148,6 +151,8 @@ export function useDashboardData(token?: string, project: string = "default") {
                     status: agent.status,
                     currentTask: agent.currentTask,
                     skills: agent.skills,
+                    system_prompt: agent.system_prompt,
+                    memory_cloud: agent.memory_cloud,
                 }),
             });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

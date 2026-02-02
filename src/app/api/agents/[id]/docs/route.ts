@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 
+export const runtime = "nodejs";
+
 export async function GET(
     _request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -10,7 +12,6 @@ export async function GET(
 
     try {
         if (id === "scorpion") {
-            // Scorpion is root
             const agentsMdPath = path.join(process.cwd(), "AGENTS.md");
             const soulMdPath = path.join(process.cwd(), "SOUL.md");
 
@@ -21,7 +22,6 @@ export async function GET(
             return NextResponse.json({ agentsMd, soulMd });
         }
 
-        // Other agents are in agents/<id>/
         const agentPath = path.join(process.cwd(), "agents", id);
         const agentsMdPath = path.join(agentPath, "AGENTS.md");
         const soulMdPath = path.join(agentPath, "SOUL.md");
