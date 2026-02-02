@@ -14,6 +14,7 @@ const handler = NextAuth({
         const adminUser = process.env.ADMIN_USER;
         const adminPass = process.env.ADMIN_PASS;
 
+
         if (!adminUser || !adminPass) {
           throw new Error("Server credentials not configured");
         }

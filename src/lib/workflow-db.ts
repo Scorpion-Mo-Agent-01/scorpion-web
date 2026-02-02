@@ -10,6 +10,27 @@ async function ensureDir() {
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 }
 
+async function ensureWorkflowColumns(db: Database) {
+  const cols = await db.all<{ name: string }[]>("PRAGMA table_info(workflow_nodes);");
+  const colNames = cols.map((c) => c.name);
+  const addCol = async (name: string, ddl: string) => {
+    if (!colNames.includes(name)) {
+      await db.exec(`ALTER TABLE workflow_nodes ADD COLUMN ${ddl}`);
+    }
+  };
+
+  await addCol("assignee_agent_id", "TEXT");
+  await addCol("status", "TEXT DEFAULT 'idle'");
+  await addCol("model_name", "TEXT");
+  await addCol("input_tokens", "INTEGER DEFAULT 0");
+  await addCol("output_tokens", "INTEGER DEFAULT 0");
+  await addCol("skills_used", "TEXT");
+  await addCol("time_spent_ms", "INTEGER DEFAULT 0");
+  await addCol("context_summary", "TEXT");
+  await addCol("telemetry", "TEXT");
+  await addCol("order_index", "INTEGER");
+}
+
 export async function getWorkflowDb(): Promise<Database> {
   await ensureDir();
   const db = await open({ filename: dbPath, driver: sqlite3.Database });
@@ -33,6 +54,16 @@ export async function getWorkflowDb(): Promise<Database> {
       description TEXT,
       type TEXT,
       assignee_role TEXT,
+      assignee_agent_id TEXT,
+      status TEXT,
+      model_name TEXT,
+      input_tokens INTEGER DEFAULT 0,
+      output_tokens INTEGER DEFAULT 0,
+      skills_used TEXT,
+      time_spent_ms INTEGER DEFAULT 0,
+      context_summary TEXT,
+      telemetry TEXT,
+      order_index INTEGER,
       metadata TEXT,
       ui_position TEXT,
       created_at TEXT,
@@ -75,6 +106,8 @@ export async function getWorkflowDb(): Promise<Database> {
       updated_at TEXT
     );
   `);
+
+  await ensureWorkflowColumns(db);
   return db;
 }
 
@@ -85,6 +118,16 @@ export type WorkflowNodeInput = {
   description?: string;
   type?: string;
   assignee_role?: string;
+  assignee_agent_id?: string;
+  status?: string;
+  model_name?: string;
+  input_tokens?: number;
+  output_tokens?: number;
+  skills_used?: string[];
+  time_spent_ms?: number;
+  context_summary?: string;
+  telemetry?: Record<string, unknown>;
+  order_index?: number;
   metadata?: Record<string, unknown>;
   ui_position?: { x: number; y: number };
 };
@@ -103,8 +146,8 @@ export async function replaceWorkflowGraph(db: Database, workflowId: string, nod
   const now = new Date().toISOString();
   for (const node of nodes) {
     await db.run(
-      `INSERT INTO workflow_nodes (id, workflow_id, node_key, title, description, type, assignee_role, metadata, ui_position, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO workflow_nodes (id, workflow_id, node_key, title, description, type, assignee_role, assignee_agent_id, status, model_name, input_tokens, output_tokens, skills_used, time_spent_ms, context_summary, telemetry, order_index, metadata, ui_position, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         node.id || crypto.randomUUID(),
         workflowId,
@@ -113,6 +156,16 @@ export async function replaceWorkflowGraph(db: Database, workflowId: string, nod
         node.description || null,
         node.type || "task",
         node.assignee_role || null,
+        node.assignee_agent_id || null,
+        node.status || "idle",
+        node.model_name || null,
+        node.input_tokens ?? 0,
+        node.output_tokens ?? 0,
+        node.skills_used ? JSON.stringify(node.skills_used) : null,
+        node.time_spent_ms ?? 0,
+        node.context_summary || null,
+        node.telemetry ? JSON.stringify(node.telemetry) : null,
+        node.order_index ?? null,
         node.metadata ? JSON.stringify(node.metadata) : null,
         node.ui_position ? JSON.stringify(node.ui_position) : JSON.stringify({ x: 0, y: 0 }),
         now,
@@ -143,5 +196,12 @@ export async function fetchWorkflowWithGraph(db: Database, workflowId: string) {
   if (!workflow) return null;
   const nodes = await db.all("SELECT * FROM workflow_nodes WHERE workflow_id = ?", workflowId);
   const edges = await db.all("SELECT * FROM workflow_edges WHERE workflow_id = ?", workflowId);
-  return { workflow, nodes, edges };
+  const parsedNodes = nodes.map((node) => ({
+    ...node,
+    metadata: node.metadata ? JSON.parse(node.metadata) : null,
+    ui_position: node.ui_position ? JSON.parse(node.ui_position) : null,
+    skills_used: node.skills_used ? JSON.parse(node.skills_used) : [],
+    telemetry: node.telemetry ? JSON.parse(node.telemetry) : null,
+  }));
+  return { workflow, nodes: parsedNodes, edges };
 }

@@ -68,6 +68,16 @@ async function applyMigrations(db: Database) {
       description TEXT,
       type TEXT,
       assignee_role TEXT,
+      assignee_agent_id TEXT,
+      status TEXT,
+      model_name TEXT,
+      input_tokens INTEGER DEFAULT 0,
+      output_tokens INTEGER DEFAULT 0,
+      skills_used TEXT,
+      time_spent_ms INTEGER DEFAULT 0,
+      context_summary TEXT,
+      telemetry TEXT,
+      order_index INTEGER,
       metadata TEXT,
       ui_position TEXT,
       created_at TEXT,
@@ -109,19 +119,33 @@ async function applyMigrations(db: Database) {
   `);
   // Ensure new columns exist
   const tableCols = async (table: string) => (await db.all<{ name: string }[]>(`PRAGMA table_info(${table});`)).map(c => c.name);
-  const taskCols = await tableCols("tasks");
   const ensureCol = async (table: string, name: string, ddl: string) => {
     if (!(await tableCols(table)).includes(name)) {
       await db.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
     }
   };
+
+  const taskCols = await tableCols("tasks");
   if (!taskCols.includes("project")) await ensureCol("tasks", "project", "TEXT");
   if (!taskCols.includes("qa_approved")) await ensureCol("tasks", "qa_approved", "INTEGER DEFAULT 0");
   if (!taskCols.includes("input_tokens")) await ensureCol("tasks", "input_tokens", "INTEGER DEFAULT 0");
   if (!taskCols.includes("output_tokens")) await ensureCol("tasks", "output_tokens", "INTEGER DEFAULT 0");
+
   const agentCols = await tableCols("agents");
   if (!agentCols.includes("system_prompt")) await ensureCol("agents", "system_prompt", "TEXT");
   if (!agentCols.includes("memory_cloud")) await ensureCol("agents", "memory_cloud", "TEXT");
+
+  const workflowNodeCols = await tableCols("workflow_nodes");
+  if (!workflowNodeCols.includes("assignee_agent_id")) await ensureCol("workflow_nodes", "assignee_agent_id", "TEXT");
+  if (!workflowNodeCols.includes("status")) await ensureCol("workflow_nodes", "status", "TEXT DEFAULT 'idle'");
+  if (!workflowNodeCols.includes("model_name")) await ensureCol("workflow_nodes", "model_name", "TEXT");
+  if (!workflowNodeCols.includes("input_tokens")) await ensureCol("workflow_nodes", "input_tokens", "INTEGER DEFAULT 0");
+  if (!workflowNodeCols.includes("output_tokens")) await ensureCol("workflow_nodes", "output_tokens", "INTEGER DEFAULT 0");
+  if (!workflowNodeCols.includes("skills_used")) await ensureCol("workflow_nodes", "skills_used", "TEXT");
+  if (!workflowNodeCols.includes("time_spent_ms")) await ensureCol("workflow_nodes", "time_spent_ms", "INTEGER DEFAULT 0");
+  if (!workflowNodeCols.includes("context_summary")) await ensureCol("workflow_nodes", "context_summary", "TEXT");
+  if (!workflowNodeCols.includes("telemetry")) await ensureCol("workflow_nodes", "telemetry", "TEXT");
+  if (!workflowNodeCols.includes("order_index")) await ensureCol("workflow_nodes", "order_index", "INTEGER");
 }
 
 export async function getDb(): Promise<Database> {
