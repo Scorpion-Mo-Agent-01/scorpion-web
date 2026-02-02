@@ -69,13 +69,13 @@ else
 fi
 echo ""
 
-# Test 5: Data persistence - verify task exists in file
-echo "Test 5: Data persistence - verify task in container"
-if [ -n "$TASK_ID" ] && docker exec scorpion-web cat /app/data/tasks.json 2>/dev/null | jq -e ".[] | select(.id == \"$TASK_ID\")" > /dev/null 2>&1; then
-    echo "✓ PASSED - Task persisted to data/tasks.json"
+# Test 5: Data persistence - verify task exists in DB
+echo "Test 5: Data persistence - verify task in container (SQLite)"
+if [ -n "$TASK_ID" ] && docker exec scorpion-web sqlite3 /app/data/tasks.db "select id from tasks where id='$TASK_ID';" | grep -q "$TASK_ID"; then
+    echo "✓ PASSED - Task persisted to data/tasks.db"
     PASSED=$((PASSED + 1))
 else
-    echo "✗ FAILED - Task not found in data file"
+    echo "✗ FAILED - Task not found in data DB"
     FAILED=$((FAILED + 1))
 fi
 echo ""

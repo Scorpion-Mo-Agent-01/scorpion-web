@@ -69,7 +69,7 @@ Test 4: PATCH /api/tasks updates task status
 ✓ PASSED - Status updated to 'done'
 
 Test 5: Data persistence - verify task in container
-✓ PASSED - Task persisted to data/tasks.json
+✓ PASSED - Task persisted to data/tasks.db
 
 Test 6: Dashboard route exists
 ✓ PASSED - Dashboard route accessible
@@ -158,21 +158,21 @@ Tasks can only move to specific next states:
 
 ## Data Storage
 
-Tasks are stored in `/app/data/tasks.json` inside the container. A Docker volume (`scorpion-web-data`) is mounted to this path for persistence.
+Tasks are stored in `/app/data/tasks.db` (SQLite) inside the container. A Docker volume (`scorpion-web-data`) is mounted to this path for persistence.
 
 To inspect the data:
 ```bash
-docker exec scorpion-web cat /app/data/tasks.json
+docker exec scorpion-web sqlite3 /app/data/tasks.db 'select count(*) from tasks;'
 ```
 
 To backup the data:
 ```bash
-docker cp scorpion-web:/app/data/tasks.json ./backup-tasks.json
+docker cp scorpion-web:/app/data/tasks.db ./backup-tasks.db
 ```
 
 To restore data:
 ```bash
-docker cp ./backup-tasks.json scorpion-web:/app/data/tasks.json
+docker cp ./backup-tasks.db scorpion-web:/app/data/tasks.db
 ```
 
 ## Docker Commands

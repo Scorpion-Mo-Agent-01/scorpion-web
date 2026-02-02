@@ -146,7 +146,7 @@ projects/scorpion-web/
 │   │       └── hero.tsx
 │   └── lib/utils.ts
 ├── data/
-│   └── tasks.json                        # Task storage (Docker vol)
+│   └── tasks.db                          # Task storage (SQLite Docker vol)
 ├── public/
 │   ├── scorpion.png
 │   └── favicon.ico

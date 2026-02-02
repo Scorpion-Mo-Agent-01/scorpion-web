@@ -96,7 +96,7 @@ scorpion-web/
 │   │   └── sections/               # Homepage sections
 │   └── lib/                        # Utilities
 ├── data/
-│   └── tasks.json                  # Task storage (Docker volume)
+│   └── tasks.db                    # Task storage (SQLite, Docker volume)
 ├── public/                         # Static assets
 ├── Dockerfile                      # Production container
 ├── test-suite.sh                   # Automated tests
