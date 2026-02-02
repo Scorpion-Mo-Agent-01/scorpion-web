@@ -71,13 +71,15 @@ export default function DashboardPage() {
     <div className="h-screen bg-[#0b0b0f] text-white flex flex-col overflow-hidden">
       <GlobalHeader agentsActive={agentsActive} tasksInQueue={tasksInQueue} completionRate={completionRate} shieldStatus={shieldStatus} />
 
-      <div className="flex-1 flex overflow-hidden pt-20">
-        <div className="w-60 flex-shrink-0">
-          <AgentRoster agents={agents} onAgentClick={(agent) => { setSelectedAgent(agent); setShowAgentModal(true); }} />
-        </div>
+      <div className="flex-1 flex overflow-hidden pt-20 gap-4 px-6">
+        <AgentRoster
+          className="w-64"
+          agents={agents}
+          onAgentClick={(agent) => { setSelectedAgent(agent); setShowAgentModal(true); }}
+        />
 
-        <main className="flex-1 flex flex-col p-6 overflow-hidden">
-          <div className="flex items-center justify-between mb-4">
+        <main className="flex-1 flex flex-col overflow-hidden space-y-4">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold tracking-tight">Mission Queue</h1>
               <button

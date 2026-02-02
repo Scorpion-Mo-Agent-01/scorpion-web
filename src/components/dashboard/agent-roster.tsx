@@ -16,11 +16,14 @@ interface Agent {
 interface AgentRosterProps {
   agents: Agent[];
   onAgentClick: (agent: Agent) => void;
+  className?: string;
 }
 
-export function AgentRoster({ agents, onAgentClick }: AgentRosterProps) {
+export function AgentRoster({ agents, onAgentClick, className }: AgentRosterProps) {
   return (
-    <aside className="fixed left-0 top-20 bottom-0 w-80 bg-slate-900 border-r border-slate-800 overflow-y-auto">
+    <aside
+      className={`shrink-0 bg-slate-900 border-r border-slate-800 overflow-y-auto sticky top-20 h-[calc(100vh-5rem)] ${className ?? "w-64"}`}
+    >
       <div className="p-4">
         <h2 className="text-xs uppercase tracking-wider text-zinc-500 font-mono mb-4">
           Agent Roster
