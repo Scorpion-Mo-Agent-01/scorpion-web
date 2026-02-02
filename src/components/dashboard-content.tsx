@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ScorpionIcon } from "./scorpion-icon";
+import { signOut, useSession } from "next-auth/react"; // Import signOut and useSession
 
 interface DashboardStats {
   balance: number;
@@ -10,11 +10,15 @@ interface DashboardStats {
   lastHeartbeat: string;
 }
 
-export function DashboardContent({ username, onLogout }: { username: string; onLogout: () => void }) {
+export function DashboardContent() { // Removed username and onLogout props
+  const { data: session } = useSession(); // Get session data
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Use session.user.name for the username
+  const username = session?.user?.name || "Agent";
 
   useEffect(() => {
     // In a real app, we'd fetch from an API
@@ -45,8 +49,9 @@ export function DashboardContent({ username, onLogout }: { username: string; onL
       } else {
         setStatus("Failed to send message.");
       }
-    } catch (err) {
-      setStatus("Error connecting to server.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Error connecting to server.";
+      setStatus(message);
     } finally {
       setLoading(false);
     }
@@ -60,8 +65,8 @@ export function DashboardContent({ username, onLogout }: { username: string; onL
           <h2 className="font-mono text-xs tracking-[0.3em] uppercase text-white/40 mb-1">Command Center</h2>
           <p className="font-mono text-2xl font-bold uppercase tracking-tighter">Welcome back, {username}</p>
         </div>
-        <button 
-          onClick={onLogout}
+        <button
+          onClick={() => signOut({ callbackUrl: '/' })} // Use signOut from next-auth/react
           className="px-4 py-2 border border-white/20 font-mono text-[10px] text-white/40 hover:text-white hover:border-white transition-all uppercase"
         >
           Terminate Session
@@ -99,16 +104,16 @@ export function DashboardContent({ username, onLogout }: { username: string; onL
               Direct Agent Override
             </h3>
             <form onSubmit={handleSendMessage} className="space-y-4">
-              <textarea 
+              <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={6}
-                className="w-full bg-black border border-white/20 p-4 font-mono text-sm focus:border-white outline-none transition-colors resize-none placeholder:text-white/20" 
+                className="w-full bg-black border border-white/20 p-4 font-mono text-sm focus:border-white outline-none transition-colors resize-none placeholder:text-white/20"
                 placeholder="Send a high-priority directive to Scorpion..."
               />
               <div className="flex justify-between items-center">
                 <p className="text-green-500 font-mono text-[10px] uppercase">{status}</p>
-                <button 
+                <button
                   disabled={loading}
                   type="submit"
                   className="bg-white text-black font-mono text-xs px-12 py-4 uppercase font-bold hover:bg-white/90 transition-all disabled:opacity-50"

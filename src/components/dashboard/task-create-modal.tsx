@@ -11,15 +11,27 @@ interface TaskCreateModalProps {
     description: string;
     assignedAgent?: string;
     tags: string[];
+    project: string;
   }) => void;
   agents: Array<{ id: string; name: string; emoji: string }>;
+  defaultProject: string;
 }
 
-export function TaskCreateModal({ isOpen, onClose, onSubmit, agents }: TaskCreateModalProps) {
+export function TaskCreateModal({ isOpen, onClose, onSubmit, agents, defaultProject }: TaskCreateModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [assignedAgent, setAssignedAgent] = useState("");
-  const [tags, setTags] = useState("");
+  const TAG_PRESETS = ["backend", "ui", "database", "infrastructure", "testing"];
+  const TAG_SPECIALIST: Record<string, string> = {
+    backend: "linus",
+    ui: "sly",
+    database: "walter",
+    infrastructure: "walter",
+    testing: "john",
+  };
+
+  const [tags, setTags] = useState<string[]>([]);
+  const [project, setProject] = useState<string>(defaultProject || "default");
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,14 +46,16 @@ export function TaskCreateModal({ isOpen, onClose, onSubmit, agents }: TaskCreat
       title: title.trim(),
       description: description.trim(),
       assignedAgent: assignedAgent || undefined,
-      tags: tags.split(",").map(t => t.trim()).filter(Boolean),
+      tags,
+      project: project || "default",
     });
 
     // Reset form
     setTitle("");
     setDescription("");
     setAssignedAgent("");
-    setTags("");
+    setTags([]);
+    setProject(defaultProject || "default");
     setError("");
     onClose();
   };
@@ -50,7 +64,8 @@ export function TaskCreateModal({ isOpen, onClose, onSubmit, agents }: TaskCreat
     setTitle("");
     setDescription("");
     setAssignedAgent("");
-    setTags("");
+    setTags([]);
+    setProject(defaultProject || "default");
     setError("");
     onClose();
   };
@@ -140,16 +155,48 @@ export function TaskCreateModal({ isOpen, onClose, onSubmit, agents }: TaskCreat
                   <label className="block text-sm font-bold text-white mb-2">
                     Tags
                   </label>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {TAG_PRESETS.map((tag) => {
+                      const active = tags.includes(tag);
+                      return (
+                        <button
+                          type="button"
+                          key={tag}
+                          onClick={() => {
+                            setTags((prev) => {
+                              const next = active ? prev.filter((t) => t !== tag) : [...prev, tag];
+                              if (!assignedAgent && !active && TAG_SPECIALIST[tag]) {
+                                setAssignedAgent(TAG_SPECIALIST[tag]);
+                              }
+                              return next;
+                            });
+                          }}
+                          className={`px-3 py-1 rounded text-xs font-mono uppercase border transition-colors ${active ? "bg-white text-black border-white" : "bg-slate-800 text-zinc-300 border-slate-700 hover:border-slate-500"}`}
+                        >
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {tags.map((tag) => (
+                        <span key={tag} className="px-2 py-0.5 bg-slate-700 text-zinc-200 rounded text-xs font-mono uppercase">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-white mb-2">Project</label>
                   <input
-                    type="text"
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
                     className="w-full bg-slate-800 border border-slate-700 rounded px-4 py-3 text-white focus:border-slate-500 outline-none font-mono text-sm"
-                    placeholder="ui, backend, security"
+                    value={project}
+                    onChange={(e) => setProject(e.target.value || "default")}
+                    placeholder="project name (e.g., scorpion-web)"
                   />
-                  <p className="text-xs text-zinc-500 mt-2">
-                    Separate tags with commas
-                  </p>
                 </div>
 
                 {error && (

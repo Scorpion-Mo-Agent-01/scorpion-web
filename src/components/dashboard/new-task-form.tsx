@@ -45,8 +45,9 @@ export function NewTaskForm({ onTaskCreated }: NewTaskFormProps) {
       
       // Notify parent to refresh tasks
       onTaskCreated();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Failed to create task";
+      setError(message);
       console.error("Failed to create task:", e);
     } finally {
       setLoading(false);

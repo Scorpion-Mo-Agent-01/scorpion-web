@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Agent {
@@ -12,6 +12,8 @@ interface Agent {
   status: "WORKING" | "IDLE" | "BLOCKED";
   currentTask: string | null;
   skills: string[];
+  system_prompt?: string | null;
+  memory_cloud?: string | null;
 }
 
 interface AgentEditModalProps {
@@ -27,30 +29,18 @@ export function AgentEditModal({ agent, isOpen, onClose, onSave }: AgentEditModa
   const [docs, setDocs] = useState<{ agentsMd: string; soulMd: string } | null>(null);
   const [loadingDocs, setLoadingDocs] = useState(false);
 
-  // Reset form when agent changes
-  useEffect(() => {
-    setFormData(agent);
-    setActiveTab("status");
-    setDocs(null); // Clear old docs
-  }, [agent]);
-
-  // Fetch docs when switching to Profile tab
-  useEffect(() => {
-    if (activeTab === "profile" && !docs && isOpen) {
-      setLoadingDocs(true);
-      fetch(`/api/agents/${agent.id}/docs`)
-        .then(res => res.json())
-        .then(data => {
-          setDocs(data);
-          setLoadingDocs(false);
-        })
-        .catch(err => {
-          console.error(err);
-          setLoadingDocs(false);
-        });
+  const loadDocs = async () => {
+    setLoadingDocs(true);
+    try {
+      const res = await fetch(`/api/agents/${agent.id}/docs`);
+      const data = await res.json();
+      setDocs(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingDocs(false);
     }
-  }, [activeTab, agent.id, docs, isOpen]);
-
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,8 +90,21 @@ export function AgentEditModal({ agent, isOpen, onClose, onSave }: AgentEditModa
 
                 {/* Tabs */}
                 <div className="flex gap-6 mt-6 border-b border-slate-800/50">
-                  <TabButton active={activeTab === "status"} onClick={() => setActiveTab("status")} label="Status & Tasks" />
-                  <TabButton active={activeTab === "profile"} onClick={() => setActiveTab("profile")} label="Agent Profile" />
+                  <TabButton
+                    active={activeTab === "status"}
+                    onClick={() => setActiveTab("status")}
+                    label="Status & Tasks"
+                  />
+                  <TabButton
+                    active={activeTab === "profile"}
+                    onClick={() => {
+                      setActiveTab("profile");
+                      if (!docs && isOpen) {
+                        loadDocs();
+                      }
+                    }}
+                    label="Agent Profile"
+                  />
                 </div>
               </div>
 
@@ -139,7 +142,14 @@ function TabButton({ active, onClick, label }: { active: boolean; onClick: () =>
   );
 }
 
-function StatusForm({ formData, setFormData, handleSubmit, onClose }: any) {
+type StatusFormProps = {
+  formData: Agent;
+  setFormData: React.Dispatch<React.SetStateAction<Agent>>;
+  handleSubmit: (e: React.FormEvent) => void;
+  onClose: () => void;
+};
+
+function StatusForm({ formData, setFormData, handleSubmit, onClose }: StatusFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
       <div className="grid grid-cols-2 gap-6">
@@ -149,7 +159,7 @@ function StatusForm({ formData, setFormData, handleSubmit, onClose }: any) {
           </label>
           <select
             value={formData.status}
-            onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+            onChange={(e) => setFormData({ ...formData, status: e.target.value as Agent["status"] })}
             className="w-full bg-slate-800 border border-slate-700 rounded px-4 py-3 text-white focus:border-slate-500 outline-none appearance-none font-mono"
           >
             <option value="WORKING">WORKING</option>
@@ -168,6 +178,18 @@ function StatusForm({ formData, setFormData, handleSubmit, onClose }: any) {
           onChange={(e) => setFormData({ ...formData, currentTask: e.target.value })}
           className="w-full bg-slate-800 border border-slate-700 rounded px-4 py-3 text-white focus:border-slate-500 outline-none min-h-[120px] font-sans"
           placeholder="What is this agent currently working on?"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
+          Internal System Prompt
+        </label>
+        <textarea
+          value={formData.system_prompt || ""}
+          onChange={(e) => setFormData({ ...formData, system_prompt: e.target.value })}
+          className="w-full bg-slate-800 border border-slate-700 rounded px-4 py-3 text-white focus:border-slate-500 outline-none min-h-[120px] font-mono text-xs"
+          placeholder="Agent-specific instructions"
         />
       </div>
 
@@ -196,6 +218,13 @@ function StatusForm({ formData, setFormData, handleSubmit, onClose }: any) {
       </div>
 
       <div className="flex gap-4 pt-6 border-t border-slate-800">
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex-1 border border-slate-700 text-white font-bold py-3 rounded hover:bg-slate-800 transition-colors uppercase text-xs tracking-widest"
+        >
+          Cancel
+        </button>
         <button
           type="submit"
           className="flex-1 bg-white text-slate-950 font-bold py-3 rounded hover:bg-zinc-200 transition-colors uppercase text-xs tracking-widest"

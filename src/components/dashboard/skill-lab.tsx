@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 
 interface Skill {
@@ -11,19 +11,14 @@ interface Skill {
 }
 
 export function SkillLab() {
-  const [skills, setSkills] = useState<Skill[]>([]);
-
-  useEffect(() => {
-    // Mock skills based on local system
-    setSkills([
-      { name: "skill-creator", description: "Create or update AgentSkills", category: "Core" },
-      { name: "github", description: "Interact with GitHub using gh CLI", category: "Ops" },
-      { name: "architecture-diagrams", description: "Create system architecture diagrams", category: "Design" },
-      { name: "web_search", description: "Search the web using Brave API", category: "Utility" },
-      { name: "browser", description: "Control web browser for UI testing", category: "Dev" },
-      { name: "expo-cicd-workflows", description: "Manage EAS CI/CD pipelines", category: "Mobile" },
-    ]);
-  }, []);
+  const [skills] = useState<Skill[]>([
+    { name: "skill-creator", description: "Create or update AgentSkills", category: "Core" },
+    { name: "github", description: "Interact with GitHub using gh CLI", category: "Ops" },
+    { name: "architecture-diagrams", description: "Create system architecture diagrams", category: "Design" },
+    { name: "web_search", description: "Search the web using Brave API", category: "Utility" },
+    { name: "browser", description: "Control web browser for UI testing", category: "Dev" },
+    { name: "expo-cicd-workflows", description: "Manage EAS CI/CD pipelines", category: "Mobile" },
+  ]);
 
   return (
     <div className="flex flex-col h-full bg-slate-900 rounded-lg border border-slate-800 overflow-hidden">

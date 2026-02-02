@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSocket, WebSocketMessage } from "./use-socket";
 
 export interface Task {
     id: string;
@@ -8,6 +9,11 @@ export interface Task {
     status: string;
     tags?: string[];
     securityFlagged?: boolean;
+    qaApproved?: boolean;
+    inputTokens?: number;
+    outputTokens?: number;
+    // Compact summary for handoff context
+    summary?: string;
 }
 
 export interface Agent {
@@ -21,71 +27,114 @@ export interface Agent {
     skills: string[];
 }
 
-export function useDashboardData() {
+export type TaskInput = Pick<Task, "title" | "description" | "assignedAgent" | "tags"> & { project?: string };
+
+export function useDashboardData(token?: string, project: string = "default") {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [agents, setAgents] = useState<Agent[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchTasks = async () => {
+    const resolvedGatewayUrl = (() => {
+        if (process.env.NEXT_PUBLIC_GATEWAY_WS && process.env.NEXT_PUBLIC_GATEWAY_WS.trim().length > 0) {
+            return process.env.NEXT_PUBLIC_GATEWAY_WS;
+        }
+        if (typeof window === "undefined") {
+            return "ws://localhost:8080";
+        }
+        const host = window.location.host; // e.g., localhost:3000 or 3.129.45.10:3000
+        const gatewayHost = host.replace(/:3000$/, ":8080");
+        return `ws://${gatewayHost}`;
+    })();
+
+    // Establish WebSocket connection, passing the token
+    const { sendMessage } = useSocket(resolvedGatewayUrl, token, useCallback((message: WebSocketMessage) => {
+        if (message.type === "task:update") {
+            const updatedTask = message.payload as Task;
+            setTasks((prev) =>
+                prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+            );
+        }
+        if (message.type === "agent:update") {
+            const updatedAgent = message.payload as Agent;
+            setAgents((prev) =>
+                prev.map((a) => (a.id === updatedAgent.id ? updatedAgent : a))
+            );
+        }
+    }, []));
+
+    const fetchTasks = useCallback(async () => {
         try {
-            const response = await fetch("/api/tasks");
+            const response = await fetch(`/api/tasks?project=${encodeURIComponent(project)}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data: Task[] = await response.json();
             setTasks(data);
             setError(null);
-        } catch (e: any) {
-            setError(e.message);
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : "Unknown error fetching tasks";
+            setError(message);
             console.error("Failed to fetch tasks:", e);
         }
-    };
+    }, [project]);
 
-    const fetchAgents = async () => {
+    const fetchAgents = useCallback(async () => {
         try {
             const response = await fetch("/api/agents");
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data: Agent[] = await response.json();
             setAgents(data);
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error("Failed to fetch agents:", e);
         }
-    };
+    }, []);
 
     const updateTaskStatus = async (id: string, newStatus: string) => {
-        // Optimistic update
+        const currentTask = tasks.find((t) => t.id === id);
+        const isQA = currentTask?.assignedAgent === "john";
+        const wantsDone = newStatus === "done";
+        const qaApproved = wantsDone && isQA;
+
+        if (wantsDone && !isQA) {
+            alert("Only QA (John) can mark as done.");
+            return;
+        }
+
         setTasks((prev) =>
-            prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t))
+            prev.map((t) => (t.id === id ? { ...t, status: newStatus, qaApproved: qaApproved ? true : t.qaApproved } : t))
         );
 
         try {
             const response = await fetch("/api/tasks", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, status: newStatus }),
+                body: JSON.stringify({ id, status: newStatus, qaApproved }),
             });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            // Background re-fetch to ensure consistency
-            fetchTasks();
-        } catch (e: any) {
+            
+            const updatedTask = await response.json() as Task;
+            sendMessage({ type: "task:update", payload: updatedTask });
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : "Failed to update task status";
             console.error("Failed to update task status:", e);
-            // Revert optimism on error would happen here, or simple alert
-            alert(`Error: ${e.message}`);
-            fetchTasks(); // Revert to server state
+            alert(`Error: ${message}`);
+            fetchTasks();
         }
     };
 
-    const createTask = async (taskData: any) => {
+    const createTask = async (taskData: TaskInput) => {
         try {
             const response = await fetch("/api/tasks", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(taskData),
+                body: JSON.stringify({ ...taskData, project }),
             });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            await fetchTasks();
-        } catch (e: any) {
+            const newTask = await response.json() as Task;
+            sendMessage({ type: "task:update", payload: newTask });
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : "Failed to create task";
             console.error("Failed to create task:", e);
-            alert(`Error: ${e.message}`);
+            alert(`Error: ${message}`);
         }
     };
 
@@ -102,10 +151,13 @@ export function useDashboardData() {
                 }),
             });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            await fetchAgents();
-        } catch (e: any) {
+            const updatedAgent = await response.json() as Agent;
+            setAgents((prev) => prev.map((a) => (a.id === updatedAgent.id ? updatedAgent : a)));
+            sendMessage({ type: "agent:update", payload: updatedAgent });
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : "Failed to update agent";
             console.error("Failed to update agent:", e);
-            alert(`Error: ${e.message}`);
+            alert(`Error: ${message}`);
         }
     }
 
@@ -115,7 +167,7 @@ export function useDashboardData() {
             setLoading(false);
         };
         init();
-    }, []);
+    }, [project, fetchTasks, fetchAgents]);
 
     return {
         tasks,

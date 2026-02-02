@@ -9,7 +9,7 @@ export function About() {
         <div>
           <h2 className="text-sm font-mono text-white/40 mb-8 tracking-[0.3em]">THE MANIFESTO</h2>
           <p className="text-3xl leading-relaxed">
-            Scorpion isn't just a bot—it's a high-precision extension of your workflow. 
+            Scorpion isn&apos;t just a bot—it&apos;s a high-precision extension of your workflow. 
             Unlike SaaS assistants, it lives where you choose. Your laptop, your homelab, your VPS.
           </p>
         </div>

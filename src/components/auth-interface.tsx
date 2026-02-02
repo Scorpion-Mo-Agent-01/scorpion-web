@@ -1,55 +1,70 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
 export function AuthInterface() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { status } = useSession();
+  const router = useRouter();
+  const [authError, setAuthError] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [status, setStatus] = useState("");
 
-  const router = useRouter();
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status, router]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username.toUpperCase() === "MOYESH" && password === "moyesh123") {
-      setIsLoggedIn(true);
-      localStorage.setItem("isLoggedIn", "true"); // Persist login status
-      setStatus("");
-      router.push("/dashboard"); // Redirect to the new dashboard page
-    } else {
-      setStatus("Invalid credentials.");
+    setAuthError("");
+    const result = await signIn("credentials", {
+      redirect: false,
+      username,
+      password,
+    });
+    if (result?.error) {
+      setAuthError("Invalid credentials.");
     }
   };
 
-  if (!isLoggedIn) {
+  if (status === "loading") {
     return (
-      <div className="border border-white/10 bg-white/5 p-8 rounded-sm max-w-md w-full">
-        <h2 className="font-mono text-xs tracking-[0.3em] uppercase text-white/40 mb-6">Security Access</h2>
-        <form onSubmit={handleLogin} className="space-y-4">
+      <div className="flex items-center justify-center p-8">
+        <p className="text-white font-mono">Loading authentication...</p>
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <div className="border border-white/10 bg-white/5 p-8 rounded-sm max-w-md w-full text-center">
+        <h2 className="font-mono text-xs tracking-[0.3em] uppercase text-white/40 mb-6">Security Access Required</h2>
+        <form onSubmit={handleCredentialsSignIn} className="space-y-4 text-left">
           <div>
-            <label className="block font-mono text-[10px] uppercase text-white/60 mb-1">User ID</label>
-            <input 
-              type="text" 
+            <label className="block font-mono text-[10px] uppercase text-white/60 mb-1">Username</label>
+            <input
+              type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-black border border-white/20 p-3 font-mono text-sm focus:border-white outline-none transition-colors" 
+              className="w-full bg-black border border-white/20 p-3 font-mono text-sm focus:border-white outline-none transition-colors"
               placeholder="Username"
             />
           </div>
           <div>
-            <label className="block font-mono text-[10px] uppercase text-white/60 mb-1">Access Key</label>
-            <input 
-              type="password" 
+            <label className="block font-mono text-[10px] uppercase text-white/60 mb-1">Password</label>
+            <input
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-black border border-white/20 p-3 font-mono text-sm focus:border-white outline-none transition-colors" 
+              className="w-full bg-black border border-white/20 p-3 font-mono text-sm focus:border-white outline-none transition-colors"
               placeholder="••••••••"
             />
           </div>
-          {status && <p className="text-red-500 font-mono text-[10px] uppercase">{status}</p>}
-          <button 
+          {authError && <p className="text-red-500 font-mono text-[10px] uppercase">{authError}</p>}
+          <button
             type="submit"
             className="w-full bg-white text-black font-mono text-xs py-3 uppercase font-bold hover:bg-white/90 transition-colors"
           >
@@ -60,5 +75,5 @@ export function AuthInterface() {
     );
   }
 
-  return null; // Don't render anything if logged in, as we are redirecting
+  return null; // Redirect handled by useEffect
 }
