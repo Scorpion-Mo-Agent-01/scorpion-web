@@ -121,7 +121,7 @@ async function applyMigrations(db: Database) {
   const tableCols = async (table: string) => (await db.all<{ name: string }[]>(`PRAGMA table_info(${table});`)).map(c => c.name);
   const ensureCol = async (table: string, name: string, ddl: string) => {
     if (!(await tableCols(table)).includes(name)) {
-      await db.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+      await db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${ddl}`);
     }
   };
 

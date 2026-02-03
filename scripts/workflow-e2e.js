@@ -23,21 +23,22 @@ const fs = require('fs');
 
   try {
     log(`goto ${baseUrl}`);
-    await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
-    await page.waitForTimeout(800);
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForTimeout(1200);
     await shot('01-home.png');
 
     log('fill credentials');
-    await page.fill('input[placeholder="Username"]', username, { timeout: 10000 });
-    await page.fill('input[placeholder="••••••••"]', password, { timeout: 10000 });
-    await page.click('button:has-text("Authenticate")', { timeout: 10000 });
-    await page.waitForTimeout(800);
+    await page.waitForSelector('input[placeholder="Username"]', { timeout: 20000 });
+    await page.fill('input[placeholder="Username"]', username);
+    await page.fill('input[placeholder="••••••••"]', password);
+    await page.click('button:has-text("Authenticate")');
+    await page.waitForTimeout(1200);
     await shot('02-after-login-click.png');
 
     log('wait dashboard or auth error');
     const navResult = await Promise.race([
-      page.waitForURL('**/dashboard', { timeout: 10000 }).then(() => 'dashboard'),
-      page.waitForSelector('text=Invalid credentials', { timeout: 10000 }).then(() => 'invalid'),
+      page.waitForURL('**/dashboard', { timeout: 30000 }).then(() => 'dashboard'),
+      page.waitForSelector('text=Invalid credentials', { timeout: 30000 }).then(() => 'invalid'),
     ]).catch(() => 'timeout');
 
     if (navResult !== 'dashboard') {
@@ -46,20 +47,27 @@ const fs = require('fs');
       throw new Error(`Login did not reach dashboard (${navResult})`);
     }
 
-    await page.waitForTimeout(800);
+    await page.waitForSelector('text=Workflow Graph', { timeout: 30000 });
+    await page.waitForTimeout(1500);
     await shot('03-dashboard.png');
 
     log('create workflow');
     const wfName = `Browser Test ${Date.now()}`;
-    await page.fill('input[placeholder="New workflow name"]', wfName, { timeout: 8000 });
-    await page.fill('textarea[placeholder="Plan instruction (seed context)"]', 'UI improvement flow via browser test', { timeout: 8000 });
-    await page.click('button:has-text("Create with chain")', { timeout: 8000 });
-    await page.waitForTimeout(800);
+    const nameInput = page.locator('input[placeholder="New workflow name"]');
+    await nameInput.waitFor({ state: 'visible', timeout: 30000 });
+    await nameInput.fill(wfName);
+    const planInput = page.locator('textarea[placeholder="Plan instruction (seed context)"]');
+    await planInput.waitFor({ state: 'visible', timeout: 30000 });
+    await planInput.fill('UI improvement flow via browser test');
+    await page.click('button:has-text("Create with chain")', { timeout: 30000 });
+    await page.waitForTimeout(1500);
     await shot('04-created.png');
 
     log('select plan node');
-    await page.click('div:has-text("Plan") >> nth=0', { timeout: 8000 });
-    await page.waitForTimeout(600);
+    const firstNode = page.locator('.react-flow__node').first();
+    await firstNode.waitFor({ state: 'visible', timeout: 30000 });
+    await firstNode.click();
+    await page.waitForTimeout(800);
     await shot('05-plan-node.png');
 
     log('final capture');

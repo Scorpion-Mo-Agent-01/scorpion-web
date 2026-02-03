@@ -15,7 +15,7 @@ async function ensureWorkflowColumns(db: Database) {
   const colNames = cols.map((c) => c.name);
   const addCol = async (name: string, ddl: string) => {
     if (!colNames.includes(name)) {
-      await db.exec(`ALTER TABLE workflow_nodes ADD COLUMN ${ddl}`);
+      await db.exec(`ALTER TABLE workflow_nodes ADD COLUMN ${name} ${ddl}`);
     }
   };
 

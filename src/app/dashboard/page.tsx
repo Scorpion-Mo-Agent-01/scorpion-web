@@ -41,10 +41,10 @@ export default function DashboardPage() {
   const completionRate = tasks.length > 0 ? Math.round((tasks.filter((t) => ["done", "review"].includes(t.status)).length / tasks.length) * 100) : 0;
 
   return (
-    <div className="h-screen bg-[#0b0b0f] text-white flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-[#0b0b0f] text-white flex flex-col overflow-auto">
       <GlobalHeader agentsActive={agentsActive} tasksInQueue={tasksInQueue} completionRate={completionRate} shieldStatus={shieldStatus} />
 
-      <div className="flex-1 flex overflow-hidden pt-20 gap-4 px-6">
+      <div className="flex-1 flex pt-20 gap-4 px-6">
         <AgentRoster
           className="w-64"
           agents={agents}
